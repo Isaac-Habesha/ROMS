@@ -1,0 +1,110 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}All Orders - Royal Dine{% endblock %}
+{% block header_title %}All Restaurant Orders{% endblock %}
+{% block header_subtitle %}Master register of all customer orders, kitchen statuses, and payments{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <a href="{% url 'analytics:admin_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back to Dashboard</span>
+    </a>
+    <span class="text-xs text-slate-400 font-medium">All Restaurant Orders</span>
+</div>
+
+<!-- Filter Tabs -->
+<div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none mb-6">
+    <a href="?status=all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'all' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        All
+    </a>
+    <a href="?status=PENDING_APPROVAL" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'PENDING_APPROVAL' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Pending
+    </a>
+    <a href="?status=APPROVED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'APPROVED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Approved
+    </a>
+    <a href="?status=PREPARING" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'PREPARING' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Preparing
+    </a>
+    <a href="?status=READY" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'READY' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Ready
+    </a>
+    <a href="?status=SERVED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'SERVED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Served
+    </a>
+    <a href="?status=REJECTED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'REJECTED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+        Rejected
+    </a>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-3.5">Order #</th>
+                    <th class="px-6 py-3.5">Reference</th>
+                    <th class="px-6 py-3.5">Waiter</th>
+                    <th class="px-6 py-3.5">Guests</th>
+                    <th class="px-6 py-3.5">Items</th>
+                    <th class="px-6 py-3.5">Total</th>
+                    <th class="px-6 py-3.5">Kitchen Status</th>
+                    <th class="px-6 py-3.5">Payment</th>
+                    <th class="px-6 py-3.5">Date</th>
+                    <th class="px-6 py-3.5 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for order in orders %}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="px-6 py-4">
+                        {% if order.order_number %}
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-white font-mono font-bold text-[11px]">{{ order.order_number }}</span>
+                        {% else %}
+                        <span class="text-slate-400 font-medium">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 font-bold text-slate-900">{{ order.order_reference }}</td>
+                    <td class="px-6 py-4 text-slate-700 font-semibold">{{ order.waiter.get_full_name|default:order.waiter.username }}</td>
+                    <td class="px-6 py-4 text-slate-600">{{ order.customer_count }}</td>
+                    <td class="px-6 py-4 text-slate-500">{{ order.items.count }} items</td>
+                    <td class="px-6 py-4 font-black text-slate-900 text-sm">${{ order.total_amount }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px]
+                            {% if order.status == 'APPROVED' %}bg-emerald-100 text-emerald-800
+                            {% elif order.status == 'PENDING_APPROVAL' %}bg-amber-100 text-amber-800
+                            {% elif order.status == 'PREPARING' %}bg-indigo-100 text-indigo-800
+                            {% elif order.status == 'READY' %}bg-emerald-100 text-emerald-800
+                            {% elif order.status == 'REJECTED' %}bg-rose-100 text-rose-800
+                            {% else %}bg-slate-100 text-slate-700{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if order.payments.exists %}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Paid</span>
+                        {% else %}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-slate-400">{{ order.created_at|date:"M d, H:i" }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-colors">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="px-6 py-12 text-center text-slate-400">No orders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

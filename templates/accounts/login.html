@@ -1,0 +1,118 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Sign In - Restaurant Order Management{% endblock %}
+
+{% block auth_content %}
+<div class="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <!-- Ambient Background Lighting -->
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none">
+    </div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <!-- Logo Emblem -->
+        <div class="flex justify-center">
+            <div
+                class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-brand-600 via-brand-500 to-amber-400 flex items-center justify-center shadow-2xl shadow-brand-500/40 transform hover:rotate-3 transition-transform duration-300">
+                <i class="bi bi-fire text-3xl text-white"></i>
+            </div>
+        </div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold tracking-tight text-white">
+            ROMS Terminal
+        </h2>
+        <p class="mt-2 text-center text-sm text-slate-400">
+            Restaurant Order Management &amp; Kitchen Dispatch System
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
+        <!-- Card -->
+        <div class="bg-navy-900/90 backdrop-blur-xl border border-slate-800 py-8 px-6 sm:px-10 shadow-2xl rounded-3xl">
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label for="id_username"
+                        class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        Username
+                    </label>
+                    <div class="relative">
+                        <div
+                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <i class="bi bi-person-fill text-lg"></i>
+                        </div>
+                        <input type="text" name="username" id="id_username" required autofocus
+                            class="w-full pl-10 pr-4 py-3 bg-navy-850 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                            placeholder="Enter your username">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_password"
+                        class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <div
+                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <i class="bi bi-lock-fill text-lg"></i>
+                        </div>
+                        <input type="password" name="password" id="id_password" required
+                            class="w-full pl-10 pr-4 py-3 bg-navy-850 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                            placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                        class="w-full flex justify-center items-center space-x-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-brand-500/30 text-sm font-bold text-white bg-gradient-to-r from-brand-600 via-brand-500 to-amber-500 hover:from-brand-500 hover:to-amber-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-navy-900 focus:ring-brand-500 transition-all duration-200 transform active:scale-[0.99]">
+                        <span>Enter Dashboard</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Quick Demo Credentials Selector -->
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 text-center mb-3">
+                    Quick Role Logins (Demo Pre-seeded)
+                </p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onclick="fillCreds('waiter1', 'waiter123')"
+                        class="p-2.5 rounded-xl bg-navy-850 hover:bg-slate-800 border border-slate-700 text-left transition-colors">
+                        <span class="block font-bold text-emerald-400">Waiter</span>
+                        <span class="text-slate-400 text-[11px]">waiter1 / waiter123</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('supervisor', 'super123')"
+                        class="p-2.5 rounded-xl bg-navy-850 hover:bg-slate-800 border border-slate-700 text-left transition-colors">
+                        <span class="block font-bold text-amber-400">Supervisor</span>
+                        <span class="text-slate-400 text-[11px]">supervisor / super123</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('chef1', 'chef123')"
+                        class="p-2.5 rounded-xl bg-navy-850 hover:bg-slate-800 border border-slate-700 text-left transition-colors">
+                        <span class="block font-bold text-orange-400">Chef / Kitchen</span>
+                        <span class="text-slate-400 text-[11px]">chef1 / chef123</span>
+                    </button>
+                    <button type="button" onclick="fillCreds('admin', 'admin123')"
+                        class="p-2.5 rounded-xl bg-navy-850 hover:bg-slate-800 border border-slate-700 text-left transition-colors">
+                        <span class="block font-bold text-purple-400">Admin</span>
+                        <span class="text-slate-400 text-[11px]">admin / admin123</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-slate-500 mt-6">
+            Internal Restaurant Operational Network &bull; Authorized Staff Only
+        </p>
+    </div>
+</div>
+
+<script>
+    function fillCreds(u, p) {
+        document.getElementById('id_username').value = u;
+        document.getElementById('id_password').value = p;
+    }
+</script>
+{% endblock %}

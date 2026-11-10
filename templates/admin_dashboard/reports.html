@@ -1,0 +1,110 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Financial Reports - Royal Dine{% endblock %}
+{% block header_title %}Financial Reports &amp; Exports{% endblock %}
+{% block header_subtitle %}Audited sales figures calculated strictly from confirmed customer payments{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <a href="{% url 'analytics:admin_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back to Dashboard</span>
+    </a>
+    <span class="text-xs text-slate-400 font-medium">Financial &amp; Sales Reports</span>
+</div>
+
+<!-- Filter & Export Toolbar -->
+<div
+    class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <form method="get" class="flex items-center space-x-2">
+        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Report Period:</label>
+        <select name="period" onchange="this.form.submit()"
+            class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="1" {% if days == 1 %}selected{% endif %}>Today</option>
+            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+            <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+            <option value="365" {% if days == 365 %}selected{% endif %}>This Year</option>
+        </select>
+    </form>
+
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'analytics:export_report_csv' %}"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 flex items-center gap-1.5 transition-colors">
+            <i class="bi bi-file-earmark-spreadsheet-fill text-emerald-600"></i>
+            <span>Export CSV</span>
+        </a>
+        <a href="{% url 'analytics:export_report_pdf' %}"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 flex items-center gap-1.5 transition-colors">
+            <i class="bi bi-file-earmark-pdf-fill text-rose-600"></i>
+            <span>Export PDF</span>
+        </a>
+    </div>
+</div>
+
+<!-- 4 Financial Summary Stat Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Net Collected Revenue</span>
+        <span class="text-2xl font-black text-emerald-600 leading-tight mt-1 block">${{ gross_sales|floatformat:2
+            }}</span>
+        <span class="text-[11px] text-slate-400 mt-0.5 block">From confirmed payments</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Total Paid Transactions</span>
+        <span class="text-2xl font-black text-slate-800 leading-tight mt-1 block">{{ total_payments_count }}</span>
+        <span class="text-[11px] text-slate-400 mt-0.5 block">Receipts issued</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Avg. Transaction Value</span>
+        <span class="text-2xl font-black text-slate-800 leading-tight mt-1 block">${{ avg_txn|floatformat:2 }}</span>
+        <span class="text-[11px] text-slate-400 mt-0.5 block">Per bill</span>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Total Placed Orders</span>
+        <span class="text-2xl font-black text-slate-800 leading-tight mt-1 block">{{ total_orders }}</span>
+        <span class="text-[11px] text-slate-400 mt-0.5 block">In this period</span>
+    </div>
+</div>
+
+<!-- Meal Sales & Performance Table -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="p-5 border-b border-slate-100">
+        <h3 class="text-base font-extrabold text-slate-800">Dish Sales &amp; Performance Ranking</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead
+                class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-3.5">Rank</th>
+                    <th class="px-6 py-3.5">Dish Name</th>
+                    <th class="px-6 py-3.5">Portions Sold</th>
+                    <th class="px-6 py-3.5 text-right">Revenue Generated</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for meal in popular_meals %}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="px-6 py-4 font-mono font-bold text-slate-400">#{{ forloop.counter }}</td>
+                    <td class="px-6 py-4 font-bold text-slate-800 text-sm">{{ meal.meal__name }}</td>
+                    <td class="px-6 py-4 font-semibold text-slate-600">{{ meal.total_qty }} portions</td>
+                    <td class="px-6 py-4 text-right font-black text-blue-600 text-sm">${{ meal.total_rev|floatformat:2
+                        }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-12 text-center text-slate-400">No meal performance data recorded for
+                        this period.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

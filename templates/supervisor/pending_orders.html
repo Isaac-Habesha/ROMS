@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}Pending Approvals - Royal Dine{% endblock %}
+{% block header_title %}Pending Orders Queue{% endblock %}
+{% block header_subtitle %}Incoming customer orders awaiting supervisor validation and dispatch{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <a href="{% url 'approvals:supervisor_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back to Dashboard</span>
+    </a>
+    <span class="text-xs text-slate-400 font-medium">Supervisor Dispatch Queue</span>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-800">Orders Requiring Review</h3>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+            {{ orders.count }} pending
+        </span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-3.5">Reference</th>
+                    <th class="px-6 py-3.5">Waiter</th>
+                    <th class="px-6 py-3.5">Customers</th>
+                    <th class="px-6 py-3.5">Items Summary</th>
+                    <th class="px-6 py-3.5">Total Amount</th>
+                    <th class="px-6 py-3.5">Submitted</th>
+                    <th class="px-6 py-3.5 text-right">Decision</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for order in orders %}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-900">{{ order.order_reference }}</td>
+                    <td class="px-6 py-4 font-semibold text-slate-700">
+                        <i class="bi bi-person mr-1 text-slate-400"></i>
+                        {{ order.waiter.get_full_name|default:order.waiter.username }}
+                    </td>
+                    <td class="px-6 py-4 font-semibold text-slate-600">{{ order.customer_count }} Guest{{ order.customer_count|pluralize }}</td>
+                    <td class="px-6 py-4 text-slate-500 max-w-xs truncate">
+                        {% for item in order.items.all %}
+                        {{ item.quantity }}x {{ item.meal.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="px-6 py-4 font-extrabold text-slate-900 text-sm">${{ order.total_amount }}</td>
+                    <td class="px-6 py-4 text-slate-400">{{ order.submitted_at|naturaltime|default:order.created_at|naturaltime }}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'approvals:review_order' order.id %}" class="px-4 py-1.5 rounded-xl font-bold text-xs text-white bg-[#2563eb] hover:bg-blue-700 shadow-sm transition-all inline-block">
+                            Review &amp; Decide
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                        <i class="bi bi-check2-circle text-4xl text-emerald-500 mb-2 d-block"></i>
+                        No pending orders awaiting approval!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% load static %}
+<!-- Sidebar Mobile Backdrop -->
+<div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm lg:hidden hidden transition-opacity duration-300"></div>
+
+<!-- Sidebar Container (Royal Dine Aesthetic) -->
+<aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 h-screen bg-[#121829] flex flex-col justify-between shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none select-none border-r border-slate-800/80 overflow-hidden">
+    
+    <!-- 1. Brand / Logo Header (Fixed Top) -->
+    <div class="h-20 shrink-0 flex items-center justify-between px-5 border-b border-slate-800/80 bg-[#0d1222]">
+        <a href="{% url 'accounts:dashboard_redirect' %}" class="flex items-center space-x-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                <i class="bi bi-egg-fried text-xl text-slate-950 font-bold"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-extrabold tracking-tight text-white leading-tight">Royal Dine</h1>
+                <p class="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Restaurant POS</p>
+            </div>
+        </a>
+
+        <!-- Mobile Close Button -->
+        <button type="button" onclick="toggleSidebar()" class="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+            <i class="bi bi-x-lg text-lg"></i>
+        </button>
+    </div>
+
+    <!-- 2. Scrollable Navigation Menu (Takes available vertical space) -->
+    <nav class="flex-1 min-h-0 px-3.5 py-4 space-y-1.5 overflow-y-auto">
+        {% if user.role == 'WAITER' %}
+        <a href="{% url 'orders:waiter_dashboard' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'waiter_dashboard' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-grid-1x2-fill text-base"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{% url 'orders:create_order' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'create_order' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-plus-circle-fill text-base"></i>
+            <span>Take New Order</span>
+        </a>
+
+        <a href="{% url 'orders:waiter_orders' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'waiter_orders' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-receipt text-base"></i>
+            <span>My Orders</span>
+        </a>
+
+        {% elif user.role == 'SUPERVISOR' %}
+        <a href="{% url 'approvals:supervisor_dashboard' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'supervisor_dashboard' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-grid-1x2-fill text-base"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{% url 'approvals:pending_orders' %}" 
+           class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'pending_orders' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <div class="flex items-center space-x-3">
+                <i class="bi bi-clipboard2-check-fill text-base"></i>
+                <span>Pending Approvals</span>
+            </div>
+        </a>
+
+        <a href="{% url 'approvals:order_history' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'order_history' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-journal-text text-base"></i>
+            <span>Orders History</span>
+        </a>
+
+        <a href="{% url 'payments:payment_list' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'payment_list' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-cash-stack text-base"></i>
+            <span>Payments</span>
+        </a>
+
+        {% elif user.role == 'KITCHEN_STAFF' %}
+        <a href="{% url 'kitchen:kitchen_dashboard' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'kitchen_dashboard' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-grid-1x2-fill text-base"></i>
+            <span>Kitchen Display</span>
+        </a>
+
+        {% elif user.role == 'ADMIN' %}
+        <!-- Administrator Navigation Options -->
+        <a href="{% url 'analytics:admin_dashboard' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-grid-1x2-fill text-base"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{% url 'menu:meal_list' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if 'menu' in request.resolver_match.url_name or 'meal' in request.resolver_match.url_name or 'category' in request.resolver_match.url_name %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-cup-hot-fill text-base"></i>
+            <span>Menu Management</span>
+        </a>
+
+        <a href="{% url 'analytics:all_orders' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'all_orders' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-receipt-cutoff text-base"></i>
+            <span>All Orders</span>
+        </a>
+
+        <a href="{% url 'analytics:user_management' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if 'user' in request.resolver_match.url_name %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-people-fill text-base"></i>
+            <span>User Management</span>
+        </a>
+
+        <a href="{% url 'analytics:reports' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'reports' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-file-earmark-bar-graph-fill text-base"></i>
+            <span>Reports &amp; Analytics</span>
+        </a>
+
+        <a href="{% url 'audit:audit_logs' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'audit_logs' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-shield-lock-fill text-base"></i>
+            <span>Audit Logs</span>
+        </a>
+
+        <a href="{% url 'payments:payment_list' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'payment_list' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-cash-stack text-base"></i>
+            <span>Payment Records</span>
+        </a>
+
+        <a href="{% url 'restaurants:settings' %}" 
+           class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 {% if request.resolver_match.url_name == 'settings' %}bg-[#2563eb] text-white shadow-lg shadow-blue-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/70{% endif %}">
+            <i class="bi bi-gear-fill text-base"></i>
+            <span>System Settings</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <!-- 3. Bottom Sticky Section: Logout + User Profile Card -->
+    <div class="shrink-0 p-4 border-t border-slate-800/80 bg-[#0c101c] space-y-3">
+        <!-- Prominent Logout Button -->
+        <form method="post" action="{% url 'accounts:logout' %}" class="w-full">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="w-full flex items-center justify-center space-x-2.5 py-2.5 px-3 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40 transition-all group">
+                <i class="bi bi-box-arrow-left text-sm group-hover:-translate-x-0.5 transition-transform"></i>
+                <span>Sign Out (Logout)</span>
+            </button>
+        </form>
+
+        <!-- User Profile Card -->
+        <div class="flex items-center space-x-3 pt-1">
+            <div class="relative shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 border border-blue-400/30 flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+                <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-[#0c101c]"></span>
+            </div>
+            <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-white truncate leading-tight">
+                    {{ user.get_full_name|default:user.username }}
+                </p>
+                <div class="flex items-center space-x-1.5 mt-0.5">
+                    <span class="text-[10px] font-semibold text-slate-400">{{ user.get_role_display }}</span>
+                    <span class="text-[9px] text-emerald-400 font-bold">&bull; Online</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</aside>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sidebar && backdrop) {
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+    }
+</script>

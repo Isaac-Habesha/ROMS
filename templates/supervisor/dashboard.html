@@ -1,0 +1,274 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}Supervisor Dashboard - Royal Dine{% endblock %}
+{% block header_title %}Supervisor Dashboard <span class="inline-block animate-bounce">📋</span>{% endblock %}
+{% block header_subtitle %}Review and approve waiter orders before dispatching to the kitchen{% endblock %}
+
+{% block content %}
+<!-- 4 KPI Cards (Exact Royal Dine Supervisor Style) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Card 1: Pending Approval -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-transform hover:-translate-y-0.5">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <i class="bi bi-clipboard2-check-fill text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Pending Approval</span>
+                <span class="text-2xl font-black text-slate-800 leading-tight">{{ pending_count }}</span>
+            </div>
+        </div>
+        <span class="text-[11px] font-bold text-rose-500 bg-rose-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+            <i class="bi bi-arrow-down-short text-sm"></i>Active
+        </span>
+    </div>
+
+    <!-- Card 2: Approved Today -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-transform hover:-translate-y-0.5">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <i class="bi bi-check-circle-fill text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Approved Today</span>
+                <span class="text-2xl font-black text-slate-800 leading-tight">{{ approved_count }}</span>
+            </div>
+        </div>
+        <span
+            class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+            <i class="bi bi-arrow-up-short text-sm"></i>Dispatched
+        </span>
+    </div>
+
+    <!-- Card 3: In Kitchen -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-transform hover:-translate-y-0.5">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                <i class="bi bi-fire text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">In Preparation</span>
+                <span class="text-2xl font-black text-slate-800 leading-tight">{{ kitchen_active_count }}</span>
+            </div>
+        </div>
+        <span class="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+            Cooking
+        </span>
+    </div>
+
+    <!-- Card 4: Ready for Serving -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between transition-transform hover:-translate-y-0.5">
+        <div class="flex items-center space-x-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <i class="bi bi-bell-fill text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Ready to Serve</span>
+                <span class="text-2xl font-black text-slate-800 leading-tight">{{ ready_count }}</span>
+            </div>
+        </div>
+        <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+            Plated
+        </span>
+    </div>
+</div>
+
+<!-- Middle Section: Pending Orders & Restaurant Overview Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+    <!-- Left Column: Pending Orders Review Queue -->
+    <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <h3 class="text-base font-extrabold text-slate-800">Pending Orders</h3>
+                    {% if pending_count > 0 %}
+                    <span
+                        class="w-5 h-5 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">
+                        {{ pending_count }}
+                    </span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'approvals:pending_orders' %}"
+                    class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <span>View All</span>
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- List of incoming orders with immediate Approve / Reject buttons -->
+            <div class="divide-y divide-slate-100 mt-2">
+                {% for order in incoming_orders %}
+                <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-extrabold text-sm text-slate-900">#{{ order.id }}</span>
+                            <span class="font-semibold text-xs text-slate-600">({{ order.order_reference }})</span>
+                            <span class="text-xs text-slate-400">&bull; {{ order.items.count }} items</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5 truncate">
+                            Waiter: <strong class="text-slate-700">{{
+                                order.waiter.get_full_name|default:order.waiter.username }}</strong> &bull; {{
+                            order.customer_count }} Guest{{ order.customer_count|pluralize }}
+                        </p>
+                        <span class="text-[11px] text-slate-400 mt-1 block">
+                            {{ order.submitted_at|naturaltime|default:order.created_at|naturaltime }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-2 shrink-0">
+                        <span class="font-extrabold text-sm text-slate-900 pr-2">${{ order.total_amount }}</span>
+
+                        <!-- Approve Form -->
+                        <form method="post" action="{% url 'approvals:approve_order' order.id %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-sm transition-all transform active:scale-95">
+                                Approve
+                            </button>
+                        </form>
+
+                        <!-- Reject Modal Button -->
+                        <a href="{% url 'approvals:review_order' order.id %}"
+                            class="px-3.5 py-1.5 rounded-xl font-bold text-xs text-white bg-[#f43f5e] hover:bg-rose-600 shadow-sm transition-all transform active:scale-95">
+                            Reject
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="py-12 text-center text-slate-400">
+                    <i class="bi bi-check2-circle text-4xl text-emerald-500 mb-2 d-block"></i>
+                    <p class="text-sm font-semibold text-slate-600">All caught up!</p>
+                    <p class="text-xs text-slate-400">No pending orders awaiting approval right now.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Success dispatch notice (Inspiration match) -->
+        <div
+            class="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-between text-xs text-emerald-800">
+            <div class="flex items-center space-x-2">
+                <i class="bi bi-shield-check text-emerald-600 text-sm"></i>
+                <span class="font-semibold">Supervisors approve & dispatch orders straight to kitchen tablets.</span>
+            </div>
+            <a href="{% url 'approvals:order_history' %}" class="font-bold text-emerald-700 hover:underline">History
+                &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Right Column: Restaurant Overview Line Chart -->
+    <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+                <h3 class="text-base font-extrabold text-slate-800">Restaurant Overview</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Orders &amp; Service Throughput</p>
+            </div>
+            <div class="flex items-center space-x-3 text-xs">
+                <span class="flex items-center gap-1 font-semibold text-blue-600"><span
+                        class="w-2 h-2 rounded-full bg-blue-600"></span> Orders</span>
+                <span class="flex items-center gap-1 font-semibold text-emerald-600"><span
+                        class="w-2 h-2 rounded-full bg-emerald-600"></span> Active</span>
+            </div>
+        </div>
+
+        <div class="py-4">
+            <canvas id="supervisorOverviewChart" height="200"></canvas>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex justify-between text-xs text-slate-400">
+            <span>Morning (9am)</span>
+            <span>Lunch (1pm)</span>
+            <span>Evening (6pm)</span>
+            <span>Dinner (9pm)</span>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Section: Recent Activities Feed -->
+<div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+            <h3 class="text-base font-extrabold text-slate-800">Recent Supervisor Activities</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Live order approvals and print log</p>
+        </div>
+        <a href="{% url 'approvals:order_history' %}"
+            class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            <span>View All</span>
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="divide-y divide-slate-100 mt-2">
+        {% for order in incoming_orders|slice:":4" %}
+        <div class="py-3 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-3">
+                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                    <i class="bi bi-inbox-fill text-xs"></i>
+                </span>
+                <span class="font-semibold text-slate-700">
+                    Order <strong>#{{ order.id }}</strong> ({{ order.order_reference }}) submitted by {{
+                    order.waiter.get_full_name|default:order.waiter.username }}
+                </span>
+            </div>
+            <span class="text-slate-400">{{ order.created_at|naturaltime }}</span>
+        </div>
+        {% empty %}
+        <div class="py-6 text-center text-slate-400 text-xs">
+            No recent activity logged.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('supervisorOverviewChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['9am', '12pm', '3pm', '6pm', '9pm'],
+                datasets: [
+                    {
+                        label: 'Orders',
+                        data: [3, 8, 5, 14, 9],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2563eb',
+                    },
+                    {
+                        label: 'Revenue Index',
+                        data: [2, 5, 4, 11, 7],
+                        borderColor: '#10b981',
+                        backgroundColor: 'transparent',
+                        borderDash: [4, 4],
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#10b981',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

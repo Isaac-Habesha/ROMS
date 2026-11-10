@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Ticket - {{ order.order_number|default:order.order_reference }}</title>
+    <!-- Tailwind CSS for screen preview -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        /* Thermal printer CSS: 58mm / 80mm roll printer support */
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+        @media print {
+            body {
+                background: none !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .ticket-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 4px !important;
+                width: 100% !important;
+                max-width: 80mm !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 px-4 flex flex-col items-center font-mono text-slate-900">
+
+    <!-- Action Toolbar (Hidden during print) -->
+    <div class="no-print max-w-sm w-full mb-6 flex items-center justify-between gap-3 font-sans">
+        <button type="button" onclick="window.history.back()" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 flex items-center gap-1.5 shadow-sm transition-all">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back</span>
+        </button>
+        <button type="button" onclick="printTicket()" class="px-5 py-2.5 rounded-xl bg-[#2563eb] text-white font-extrabold text-xs hover:bg-blue-700 shadow-md shadow-blue-500/25 flex items-center gap-2 transition-all">
+            <i class="bi bi-printer-fill"></i>
+            <span>Print Thermal Ticket</span>
+        </button>
+    </div>
+
+    <!-- Paper Receipt Container -->
+    <div class="ticket-card bg-white w-[80mm] max-w-full p-5 shadow-2xl rounded-2xl border border-slate-200/80 text-[12px] leading-tight">
+        
+        <!-- Header -->
+        <div class="text-center pb-3 border-b-2 border-dashed border-slate-900 mb-3">
+            <div class="text-lg font-black tracking-wider uppercase">
+                {{ restaurant.name|default:"ROYAL DINE" }}
+            </div>
+            <div class="text-[10px] tracking-widest text-slate-600 uppercase mt-0.5">
+                *** KITCHEN DISPATCH TICKET ***
+            </div>
+        </div>
+
+        <!-- Order Number Callout -->
+        <div class="text-center py-2 border-y-2 border-dashed border-slate-900 my-2">
+            <div class="text-xl font-black tracking-tight">
+                {{ order.order_number|default:order.order_reference }}
+            </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="space-y-1 py-2 text-[11px]">
+            <div class="flex justify-between">
+                <span>CUSTOMERS:</span>
+                <strong class="font-black">{{ order.customer_count }} GUEST{{ order.customer_count|pluralize:"S" }}</strong>
+            </div>
+            <div class="flex justify-between">
+                <span>TIME:</span>
+                <strong>{{ order.approved_at|date:"h:i A"|default:order.created_at|date:"h:i A" }}</strong>
+            </div>
+            <div class="flex justify-between">
+                <span>WAITER:</span>
+                <strong class="uppercase">{{ order.waiter.get_full_name|default:order.waiter.username }}</strong>
+            </div>
+            <div class="flex justify-between">
+                <span>APPROVED BY:</span>
+                <strong class="uppercase">{{ supervisor_name }}</strong>
+            </div>
+            {% if ticket.printed_count > 0 %}
+            <div class="flex justify-between text-[10px] text-slate-500 pt-1">
+                <span>REPRINT #{{ ticket.printed_count }}</span>
+                <span>{{ ticket.last_printed_at|date:"H:i:s" }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="border-t border-dashed border-slate-900 my-2"></div>
+
+        <!-- Order Items -->
+        <div class="font-black text-[11px] uppercase tracking-wider mb-2">ORDER ITEMS</div>
+        <table class="w-full text-left my-2 border-collapse">
+            <tbody class="divide-y divide-slate-300">
+                {% for item in order.items.all %}
+                <tr class="py-1">
+                    <td class="font-black text-sm align-top py-1.5 w-8">{{ item.quantity }}x</td>
+                    <td class="font-black text-[13px] py-1.5">
+                        {{ item.meal.name }}
+                        {% if item.special_instructions %}
+                        <div class="text-[11px] font-bold text-rose-600 italic mt-0.5">
+                            >> NOTE: {{ item.special_instructions }}
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if order.order_notes %}
+        <div class="p-2 border border-dashed border-slate-900 my-3 text-[11px]">
+            <strong class="block font-black">SPECIAL INSTRUCTIONS:</strong>
+            {{ order.order_notes }}
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="border-t-2 border-dashed border-slate-900 pt-3 mt-3 text-center space-y-1 text-[11px]">
+            <div class="font-black text-xs uppercase">
+                TOTAL ITEMS: {{ total_items_count }}
+            </div>
+            <div class="text-[10px] text-slate-500 font-mono">Ref: {{ order.order_reference }}</div>
+            <div class="text-[9px] text-slate-400 uppercase tracking-widest pt-1">ROMS &bull; Royal Dine Dispatch</div>
+        </div>
+
+    </div>
+
+    <script>
+        function printTicket() {
+            fetch("{% url 'kitchen:record_print' order.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).catch(console.error);
+
+            window.print();
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('auto') === '1') {
+            window.addEventListener('load', () => setTimeout(printTicket, 300));
+        }
+    </script>
+</body>
+</html>

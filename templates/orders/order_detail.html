@@ -1,0 +1,265 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}Order Details {{ order.order_number|default:order.order_reference }} - Royal Dine{% endblock %}
+{% block header_title %}Order Details &bull; {{ order.order_number|default:order.order_reference }}{% endblock %}
+{% block header_subtitle %}Full order lifecycle, items breakdown, payment recording, and status audit{% endblock %}
+
+{% block content %}
+<!-- Back Navigation Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <button type="button" onclick="window.history.back()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back</span>
+    </button>
+    <span class="text-xs text-slate-400 font-medium">Order Details &bull; {{ order.order_number|default:order.order_reference }}</span>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- Left Column: Order Items & Meta (8 cols) -->
+    <div class="lg:col-span-8 space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Order Information</span>
+                    <h2 class="text-xl font-extrabold text-slate-900 mt-0.5">
+                        {{ order.order_number|default:order.order_reference }}
+                    </h2>
+                </div>
+                <div>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold
+                        {% if order.status == 'PENDING_APPROVAL' %}bg-amber-100 text-amber-800
+                        {% elif order.status == 'APPROVED' %}bg-emerald-100 text-emerald-800
+                        {% elif order.status == 'RECEIVED' %}bg-sky-100 text-sky-800
+                        {% elif order.status == 'PREPARING' %}bg-indigo-100 text-indigo-800
+                        {% elif order.status == 'READY' %}bg-emerald-100 text-emerald-800
+                        {% elif order.status == 'REJECTED' %}bg-rose-100 text-rose-800
+                        {% else %}bg-slate-100 text-slate-700{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Meta details row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-b border-slate-100 text-xs">
+                <div>
+                    <span class="text-slate-400 font-medium block">Waiter</span>
+                    <strong class="text-slate-800 text-sm font-bold">{{
+                        order.waiter.get_full_name|default:order.waiter.username }}</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Guests</span>
+                    <strong class="text-slate-800 text-sm font-bold">{{ order.customer_count }} Person{{
+                        order.customer_count|pluralize }}</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Submitted</span>
+                    <strong class="text-slate-800 text-sm font-bold">{{ order.created_at|date:"M d, H:i" }}</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 font-medium block">Total Value</span>
+                    <strong class="text-blue-600 text-sm font-black">${{ order.total_amount }}</strong>
+                </div>
+            </div>
+
+            {% if order.rejection_reason %}
+            <div class="my-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900">
+                <strong><i class="bi bi-exclamation-triangle-fill mr-1.5 text-rose-600"></i>Rejection Reason:</strong>
+                {{ order.rejection_reason }}
+            </div>
+            {% endif %}
+
+            {% if order.order_notes %}
+            <div class="my-4 p-3.5 rounded-xl bg-blue-50/50 border border-blue-100 text-xs text-blue-900">
+                <strong><i class="bi bi-chat-left-text-fill mr-1.5 text-blue-600"></i>General Notes:</strong> {{
+                order.order_notes }}
+            </div>
+            {% endif %}
+
+            <!-- Items Table -->
+            <div class="mt-4">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Ordered Items</h4>
+                <div class="overflow-x-auto rounded-xl border border-slate-100">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider">
+                            <tr>
+                                <th class="px-4 py-3">Item</th>
+                                <th class="px-4 py-3 text-center">Qty</th>
+                                <th class="px-4 py-3 text-right">Unit Price</th>
+                                <th class="px-4 py-3 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <span class="font-bold text-slate-800">{{ item.meal.name }}</span>
+                                    {% if item.special_instructions %}
+                                    <span class="block text-[11px] text-rose-600 font-semibold mt-0.5">
+                                        <i class="bi bi-arrow-return-right"></i> {{ item.special_instructions }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center font-bold text-slate-800">{{ item.quantity }}</td>
+                                <td class="px-4 py-3 text-right text-slate-600">${{ item.unit_price }}</td>
+                                <td class="px-4 py-3 text-right font-black text-slate-900">${{ item.subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="bg-slate-50 font-black text-slate-900">
+                            <tr>
+                                <td colspan="3" class="px-4 py-3 text-right text-sm">Total Due:</td>
+                                <td class="px-4 py-3 text-right text-base text-blue-600">${{ order.total_amount }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Back & Ticket action -->
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <button type="button" onclick="window.history.back()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs inline-flex items-center gap-1.5">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+                {% if order.status in 'APPROVED,RECEIVED,PREPARING,READY,SERVED' %}
+                <a href="{% url 'kitchen:print_ticket' order.id %}"
+                    class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 inline-flex items-center gap-1.5 shadow-sm">
+                    <i class="bi bi-printer"></i>
+                    <span>Print Kitchen Ticket</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Payments & Timeline (4 cols) -->
+    <div class="lg:col-span-4 space-y-6">
+        <!-- Payment Card -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <i class="bi bi-cash-stack text-emerald-600"></i>
+                    <span>Payment Status</span>
+                </h3>
+                {% if order.payments.exists %}
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">PAID</span>
+                {% else %}
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">UNPAID</span>
+                {% endif %}
+            </div>
+
+            <div class="py-4 space-y-3">
+                {% if order.payments.exists %}
+                {% for p in order.payments.all %}
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs space-y-1">
+                    <div class="flex justify-between items-center font-bold">
+                        <span class="text-emerald-700 font-extrabold">${{ p.amount }}</span>
+                        <span class="text-slate-500 uppercase text-[10px]">{{ p.get_payment_method_display }}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block font-mono">Ref: {{ p.transaction_reference }}</span>
+                    <span class="text-[10px] text-slate-500 block">{{ p.created_at|date:"M d, H:i" }} &bull; {{
+                        p.recorded_by.get_full_name|default:p.recorded_by.username }}</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-xs text-slate-500">No payment collected yet. Outstanding balance is <strong>${{
+                        order.total_amount }}</strong>.</p>
+                {% if user.role == 'ADMIN' or user.role == 'SUPERVISOR' %}
+                <button type="button" onclick="document.getElementById('paymentModal').classList.remove('hidden')"
+                    class="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-md shadow-emerald-500/20 transition-all">
+                    Record Payment Now
+                </button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Lifecycle History Timeline -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <h3
+                class="text-sm font-extrabold text-slate-800 pb-3 border-b border-slate-100 mb-3 flex items-center gap-1.5">
+                <i class="bi bi-clock-history text-slate-400"></i>
+                <span>Lifecycle Audit</span>
+            </h3>
+
+            <div class="space-y-3">
+                {% for h in order.status_history.all %}
+                <div class="border-l-2 border-slate-200 pl-3 py-0.5 text-xs">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-800">{{ h.new_status }}</span>
+                        <span class="text-[10px] text-slate-400">{{ h.created_at|date:"H:i:s" }}</span>
+                    </div>
+                    <span class="text-[11px] text-slate-500 block">By: {{
+                        h.changed_by.get_full_name|default:h.changed_by.username|default:"System" }}</span>
+                    {% if h.notes %}
+                    <span class="text-[10px] text-slate-400 italic block mt-0.5">{{ h.notes }}</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-xs text-slate-400">No events logged.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Payment Modal -->
+{% if user.role == 'ADMIN' or user.role == 'SUPERVISOR' %}
+<div id="paymentModal"
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="bi bi-cash-coin text-emerald-600"></i>
+                <span>Record Order Payment</span>
+            </h3>
+            <button type="button" onclick="document.getElementById('paymentModal').classList.add('hidden')"
+                class="text-slate-400 hover:text-slate-600">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <form method="post" action="{% url 'payments:record_payment' order.id %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Amount Paid ($):</label>
+                <input type="number" step="0.01" name="amount" value="{{ order.total_amount }}" required
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Payment Method:</label>
+                <select name="payment_method"
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Credit / Debit Card</option>
+                    <option value="MOBILE_MONEY">Mobile Money / QR</option>
+                    <option value="OTHER">Other / Manual</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Notes (Optional):</label>
+                <textarea name="notes" rows="2" placeholder="e.g. Paid in cash at counter..."
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 pt-2">
+                <button type="button" onclick="document.getElementById('paymentModal').classList.add('hidden')"
+                    class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2.5 rounded-xl font-black text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-md shadow-emerald-500/25">
+                    Confirm &amp; Record Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} - Royal Dine{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+{% block header_subtitle %}Configure meal specifications, ingredients description, pricing, and prep time{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'menu:meal_list' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+            <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+            <span>Back to Menu</span>
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <form method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="text-xs text-rose-600 block mt-1 font-semibold">{{ field.errors.0 }}</span>
+                {% endif %}
+                {% if field.help_text %}
+                <span class="text-[11px] text-slate-400 block mt-0.5">{{ field.help_text }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <a href="{% url 'menu:meal_list' %}"
+                    class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-xl font-black text-xs text-white bg-[#2563eb] hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all">
+                    Save Dish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

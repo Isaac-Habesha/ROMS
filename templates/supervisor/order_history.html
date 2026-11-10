@@ -1,0 +1,91 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}Order History - Royal Dine{% endblock %}
+{% block header_title %}Supervisor Order History{% endblock %}
+{% block header_subtitle %}Complete audit trail of all approved, rejected, and dispatched orders{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <a href="{% url 'approvals:supervisor_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back to Dashboard</span>
+    </a>
+    <span class="text-xs text-slate-400 font-medium">Supervisor Order Archive</span>
+</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-base font-extrabold text-slate-800">Processed Orders</h3>
+        <span class="text-xs font-semibold text-slate-400">Total: {{ orders.count }}</span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead
+                class="bg-slate-50 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-3.5">Order #</th>
+                    <th class="px-6 py-3.5">Reference</th>
+                    <th class="px-6 py-3.5">Waiter</th>
+                    <th class="px-6 py-3.5">Guests</th>
+                    <th class="px-6 py-3.5">Total</th>
+                    <th class="px-6 py-3.5">Status</th>
+                    <th class="px-6 py-3.5">Date</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for order in orders %}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="px-6 py-4">
+                        {% if order.order_number %}
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-white font-mono font-bold text-[11px]">{{
+                            order.order_number }}</span>
+                        {% else %}
+                        <span class="text-slate-400 font-medium">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 font-bold text-slate-900">{{ order.order_reference }}</td>
+                    <td class="px-6 py-4 text-slate-700 font-semibold">{{
+                        order.waiter.get_full_name|default:order.waiter.username }}</td>
+                    <td class="px-6 py-4 text-slate-600">{{ order.customer_count }}</td>
+                    <td class="px-6 py-4 font-black text-slate-900">${{ order.total_amount }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-0.5 rounded-full font-bold text-[11px]
+                            {% if order.status == 'APPROVED' %}bg-emerald-100 text-emerald-800
+                            {% elif order.status == 'RECEIVED' %}bg-sky-100 text-sky-800
+                            {% elif order.status == 'PREPARING' %}bg-indigo-100 text-indigo-800
+                            {% elif order.status == 'READY' %}bg-emerald-100 text-emerald-800
+                            {% elif order.status == 'REJECTED' %}bg-rose-100 text-rose-800
+                            {% else %}bg-slate-100 text-slate-700{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-slate-400">{{ order.created_at|date:"M d, H:i" }}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'approvals:review_order' order.id %}"
+                            class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-colors">
+                            Details
+                        </a>
+                        {% if order.status in 'APPROVED,RECEIVED,PREPARING,READY,SERVED' %}
+                        <a href="{% url 'kitchen:print_ticket' order.id %}"
+                            class="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors">
+                            <i class="bi bi-printer"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                        No historical orders recorded yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

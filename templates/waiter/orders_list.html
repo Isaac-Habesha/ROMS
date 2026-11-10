@@ -1,0 +1,127 @@
+{% extends 'base/base.html' %}
+{% load humanize %}
+
+{% block title %}My Orders - Royal Dine{% endblock %}
+{% block header_title %}My Orders History{% endblock %}
+{% block header_subtitle %}Track all your registered customer orders and their live kitchen statuses{% endblock %}
+
+{% block content %}
+<!-- Back to Dashboard Toolbar -->
+<div class="mb-4 flex items-center justify-between">
+    <a href="{% url 'orders:waiter_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+        <span>Back to Dashboard</span>
+    </a>
+    <span class="text-xs text-slate-400 font-medium">Orders Registry</span>
+</div>
+
+<!-- Filter Tabs + Action -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
+        <a href="?status=all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'all' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            All Orders
+        </a>
+        <a href="?status=PENDING_APPROVAL" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'PENDING_APPROVAL' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            Pending Approval
+        </a>
+        <a href="?status=APPROVED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'APPROVED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            Approved
+        </a>
+        <a href="?status=PREPARING" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'PREPARING' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            Preparing
+        </a>
+        <a href="?status=READY" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'READY' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            Ready to Serve
+        </a>
+        <a href="?status=REJECTED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'REJECTED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            Rejected
+        </a>
+    </div>
+
+    <a href="{% url 'orders:create_order' %}" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2563eb] hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all shrink-0">
+        <i class="bi bi-plus-lg"></i>
+        <span>Take New Order</span>
+    </a>
+</div>
+
+<!-- Table Container -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-100 text-slate-400 uppercase font-bold text-[10px] tracking-wider">
+                <tr>
+                    <th class="px-6 py-3.5">Reference</th>
+                    <th class="px-6 py-3.5">Order #</th>
+                    <th class="px-6 py-3.5">Guests</th>
+                    <th class="px-6 py-3.5">Items</th>
+                    <th class="px-6 py-3.5">Total Amount</th>
+                    <th class="px-6 py-3.5">Status</th>
+                    <th class="px-6 py-3.5">Submitted</th>
+                    <th class="px-6 py-3.5 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for order in orders %}
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-900">{{ order.order_reference }}</td>
+                    <td class="px-6 py-4">
+                        {% if order.order_number %}
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-white font-mono font-bold text-[11px]">{{ order.order_number }}</span>
+                        {% else %}
+                        <span class="text-slate-400 font-medium">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 font-semibold text-slate-700">{{ order.customer_count }} Person{{ order.customer_count|pluralize }}</td>
+                    <td class="px-6 py-4 text-slate-500">{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                    <td class="px-6 py-4 font-extrabold text-slate-900 text-sm">${{ order.total_amount }}</td>
+                    <td class="px-6 py-4">
+                        {% if order.status == 'PENDING_APPROVAL' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-amber-100 text-amber-800">Pending Approval</span>
+                        {% elif order.status == 'APPROVED' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Approved</span>
+                        {% elif order.status == 'PREPARING' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-indigo-100 text-indigo-800">Preparing</span>
+                        {% elif order.status == 'READY' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Ready to Serve</span>
+                        {% elif order.status == 'REJECTED' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-rose-100 text-rose-800">Rejected</span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-slate-400">{{ order.created_at|naturaltime }}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-colors">
+                            Details
+                        </a>
+                        {% if order.status == 'REJECTED' %}
+                        <form method="post" action="{% url 'orders:resubmit_order' order.id %}" class="inline-block">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1.5 rounded-xl font-bold text-white bg-[#2563eb] hover:bg-blue-700 shadow-sm transition-all">
+                                Resubmit
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if order.status == 'REJECTED' and order.rejection_reason %}
+                <tr class="bg-rose-50/40">
+                    <td colspan="8" class="px-6 py-2.5 text-rose-700 font-medium">
+                        <i class="bi bi-exclamation-triangle-fill mr-1.5 text-rose-500"></i>
+                        <strong>Supervisor Rejection Reason:</strong> {{ order.rejection_reason }}
+                    </td>
+                </tr>
+                {% endif %}
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                        <i class="bi bi-receipt text-3xl mb-2 d-block text-slate-300"></i>
+                        No orders found in this category.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

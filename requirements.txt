@@ -1,0 +1,9 @@
+Django>=5.1
+psycopg2-binary>=2.9
+channels[daphne]>=4.2
+channels-redis>=4.3
+Pillow>=10.4
+django-crispy-forms>=2.7
+crispy-bootstrap5>=2026.9
+reportlab>=5.0
+python-decouple>=3.8
