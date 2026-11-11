@@ -221,14 +221,13 @@
 </div>
 
 <!-- Payment Modal -->
-{% if user.role == 'ADMIN' or user.role == 'SUPERVISOR' %}
 <div id="paymentModal"
     class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
             <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <i class="bi bi-cash-coin text-emerald-600"></i>
-                <span>Record Order Payment</span>
+                <span>Confirm Order Payment</span>
             </h3>
             <button type="button" onclick="document.getElementById('paymentModal').classList.add('hidden')"
                 class="text-slate-400 hover:text-slate-600">
@@ -267,12 +266,11 @@
                     Cancel
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 rounded-xl font-black text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-md shadow-emerald-500/25">
+                    class="px-5 py-2.5 rounded-xl font-black text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-md shadow-emerald-500/25 transition-all">
                     Confirm &amp; Record Payment
                 </button>
             </div>
         </form>
     </div>
 </div>
-{% endif %}
 {% endblock %}

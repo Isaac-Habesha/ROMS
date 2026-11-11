@@ -8,7 +8,8 @@
 {% block content %}
 <!-- Back to Dashboard Navigation -->
 <div class="mb-4 flex items-center justify-between">
-    <a href="{% url 'orders:waiter_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+    <a href="{% url 'orders:waiter_dashboard' %}"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
         <i class="bi bi-arrow-left text-sm text-blue-600"></i>
         <span>Back to Dashboard</span>
     </a>
@@ -95,9 +96,9 @@
                                 {% elif "pasta" in meal.name|lower or "spaghetti" in meal.name|lower %}🍝
                                 {% elif "salad" in meal.name|lower %}🥗
                                 {% elif "soup" in meal.name|lower %}🍲
-                                {% elif "fish" in meal.name|lower or "salmon" in meal.name|lower %}🐟
+                                {% elif "salmon" in meal.name|lower or "fish" in meal.name|lower %}🐟
                                 {% elif "coffee" in meal.name|lower or "tea" in meal.name|lower or "juice" in
-                                meal.name|lower or "drink" in meal.name|lower %}🍹
+                                meal.name|lower or "smoothie" in meal.name|lower or "drink" in meal.name|lower %}🍹
                                 {% elif "cake" in meal.name|lower or "dessert" in meal.name|lower or "ice" in
                                 meal.name|lower %}🍰
                                 {% else %}🍽️{% endif %}

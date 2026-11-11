@@ -113,9 +113,11 @@
                         <p class="text-xs text-slate-500 mt-0.5 truncate">
                             Waiter: <strong class="text-slate-700">{{ order.waiter.get_full_name|default:order.waiter.username }}</strong> &bull; {{ order.customer_count }} Guest{{ order.customer_count|pluralize }}
                         </p>
-                        <span class="text-[11px] text-slate-400 mt-1 block">
-                            {{ order.submitted_at|naturaltime|default:order.created_at|naturaltime }}
-                        </span>
+                        <div class="flex items-center gap-1.5 text-[11px] text-slate-500 mt-1">
+                            <i class="bi bi-clock text-slate-400"></i>
+                            <span class="font-bold text-slate-700">{{ order.created_at|date:"h:i A" }}</span>
+                            <span class="text-slate-400">&bull; {{ order.created_at|naturaltime }}</span>
+                        </div>
                     </div>
 
                     <div class="flex items-center space-x-2 shrink-0">

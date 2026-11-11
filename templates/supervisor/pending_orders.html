@@ -51,7 +51,13 @@
                         {% endfor %}
                     </td>
                     <td class="px-6 py-4 font-extrabold text-slate-900 text-sm">${{ order.total_amount }}</td>
-                    <td class="px-6 py-4 text-slate-400">{{ order.submitted_at|naturaltime|default:order.created_at|naturaltime }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
+                            <i class="bi bi-clock text-slate-400"></i>
+                            <span>{{ order.created_at|date:"h:i A" }}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block">{{ order.created_at|naturaltime }}</span>
+                    </td>
                     <td class="px-6 py-4 text-right space-x-2">
                         <a href="{% url 'approvals:review_order' order.id %}" class="px-4 py-1.5 rounded-xl font-bold text-xs text-white bg-[#2563eb] hover:bg-blue-700 shadow-sm transition-all inline-block">
                             Review &amp; Decide
