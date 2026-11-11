@@ -47,13 +47,13 @@ def record_payment(request, order_id):
         previous_status=previous_status,
         new_status=Order.Status.SERVED,
         changed_by=request.user,
-        notes=f'Payment of ${amount:.2f} recorded via {payment.get_payment_method_display()}. Order marked as Served.'
+        notes=f'Payment of ETB {amount:.2f} recorded via {payment.get_payment_method_display()}. Order marked as Served.'
     )
 
     log_action(
         user=request.user,
         action='PAYMENT_RECORDED',
-        description=f'Payment of ${amount:.2f} recorded for order {order.order_number or order.order_reference} via {payment.get_payment_method_display()} by {request.user.get_full_name() or request.user.username}. Order marked as Served.',
+        description=f'Payment of ETB {amount:.2f} recorded for order {order.order_number or order.order_reference} via {payment.get_payment_method_display()} by {request.user.get_full_name() or request.user.username}. Order marked as Served.',
         entity_type='Payment',
         entity_id=payment.id,
         ip_address=get_client_ip(request)
@@ -68,7 +68,7 @@ def record_payment(request, order_id):
         ip_address=get_client_ip(request)
     )
 
-    messages.success(request, f'Payment of ${amount:.2f} for Order {order.order_number or order.order_reference} confirmed. Order marked as Served!')
+    messages.success(request, f'Payment of ETB {amount:.2f} for Order {order.order_number or order.order_reference} confirmed. Order marked as Served!')
     
     # Redirect back to where the user came from or to order detail
     next_url = request.POST.get('next')

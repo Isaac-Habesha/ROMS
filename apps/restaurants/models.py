@@ -20,7 +20,7 @@ class Restaurant(models.Model):
 
 class RestaurantSettings(models.Model):
     restaurant = models.OneToOneField(Restaurant, on_delete=models.CASCADE, related_name='settings')
-    currency_symbol = models.CharField(max_length=10, default='$')
+    currency_symbol = models.CharField(max_length=10, default='ETB')
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     order_prefix = models.CharField(max_length=10, default='ORD')
     enable_sound_notifications = models.BooleanField(default=True)

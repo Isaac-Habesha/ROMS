@@ -84,7 +84,7 @@ def create_order(request):
         log_action(
             user=request.user,
             action='ORDER_SUBMITTED',
-            description=f'Order {order.order_reference} created with {order.items.count()} items, total ${total:.2f}',
+            description=f'Order {order.order_reference} created with {order.items.count()} items, total ETB {total:.2f}',
             entity_type='Order',
             entity_id=order.id,
             ip_address=get_client_ip(request)
@@ -140,7 +140,7 @@ def live_notifications_api(request):
             notifications.append({
                 'id': ord_obj.id,
                 'title': f'New Order: {ord_obj.order_reference}',
-                'body': f'Waiter {ord_obj.waiter.get_full_name() or ord_obj.waiter.username} submitted an order for {ord_obj.customer_count} guests (${ord_obj.total_amount}).',
+                'body': f'Waiter {ord_obj.waiter.get_full_name() or ord_obj.waiter.username} submitted an order for {ord_obj.customer_count} guests (ETB {ord_obj.total_amount}).',
                 'time': ord_obj.created_at.strftime('%H:%M'),
                 'url': f'/approvals/review/{ord_obj.id}/',
                 'type': 'order'

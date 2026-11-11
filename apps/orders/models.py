@@ -81,7 +81,7 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.quantity}x {self.meal.name} - ${self.subtotal}"
+        return f"{self.quantity}x {self.meal.name} - ETB {self.subtotal}"
 
 
 class OrderStatusHistory(models.Model):

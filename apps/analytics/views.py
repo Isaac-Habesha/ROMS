@@ -170,7 +170,7 @@ def export_report_pdf(request):
     total_sales = Payment.objects.filter(status=Payment.Status.COMPLETED).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
     total_orders = Order.objects.count()
     
-    p.drawString(100, 690, f"Total Lifetime Collected Sales: ${total_sales:.2f}")
+    p.drawString(100, 690, f"Total Lifetime Collected Sales: ETB {total_sales:.2f}")
     p.drawString(100, 670, f"Total Orders Placed: {total_orders}")
     p.drawString(100, 650, f"Total Payments Recorded: {Payment.objects.count()}")
 

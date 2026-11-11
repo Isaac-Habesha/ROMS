@@ -19,7 +19,6 @@ def login_view(request):
                 messages.error(request, 'Your account has been deactivated. Contact an administrator.')
                 return render(request, 'accounts/login.html', {'form': form})
             login(request, user)
-            messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
             return redirect('accounts:dashboard_redirect')
         else:
             messages.error(request, 'Invalid username or password.')

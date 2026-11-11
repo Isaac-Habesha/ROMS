@@ -25,7 +25,7 @@ def meal_create(request):
             log_action(
                 user=request.user,
                 action='MEAL_CREATED',
-                description=f'Meal {meal.name} created with price ${meal.price:.2f}.',
+                description=f'Meal {meal.name} created with price ETB {meal.price:.2f}.',
                 entity_type='Meal',
                 entity_id=meal.id,
                 ip_address=get_client_ip(request)

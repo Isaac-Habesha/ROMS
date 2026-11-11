@@ -41,5 +41,5 @@ class Payment(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.transaction_reference} - ${self.amount} ({self.get_payment_method_display()})"
+        return f"{self.transaction_reference} - ETB {self.amount} ({self.get_payment_method_display()})"
 

@@ -52,7 +52,7 @@
             </div>
             <div>
                 <span class="text-slate-400 font-medium block">Items Total</span>
-                <strong class="text-blue-600 text-sm font-black">${{ order.total_amount }}</strong>
+                <strong class="text-blue-600 text-sm font-black">ETB {{ order.total_amount }}</strong>
             </div>
         </div>
 
@@ -95,15 +95,15 @@
                             </td>
                             <td class="px-4 py-3 text-slate-500">{{ item.meal.category.name }}</td>
                             <td class="px-4 py-3 text-center font-bold text-slate-800">{{ item.quantity }}</td>
-                            <td class="px-4 py-3 text-right text-slate-600">${{ item.unit_price }}</td>
-                            <td class="px-4 py-3 text-right font-black text-slate-900">${{ item.subtotal }}</td>
+                            <td class="px-4 py-3 text-right text-slate-600">ETB {{ item.unit_price }}</td>
+                            <td class="px-4 py-3 text-right font-black text-slate-900">ETB {{ item.subtotal }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot class="bg-slate-50 font-black text-slate-900">
                         <tr>
                             <td colspan="4" class="px-4 py-3 text-right text-sm">Total Order Value:</td>
-                            <td class="px-4 py-3 text-right text-base text-blue-600">${{ order.total_amount }}</td>
+                            <td class="px-4 py-3 text-right text-base text-blue-600">ETB {{ order.total_amount }}</td>
                         </tr>
                     </tfoot>
                 </table>

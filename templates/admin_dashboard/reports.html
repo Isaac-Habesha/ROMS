@@ -47,7 +47,7 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Net Collected Revenue</span>
-        <span class="text-2xl font-black text-emerald-600 leading-tight mt-1 block">${{ gross_sales|floatformat:2 }}</span>
+        <span class="text-2xl font-black text-emerald-600 leading-tight mt-1 block">ETB {{ gross_sales|floatformat:2 }}</span>
         <span class="text-[11px] text-slate-400 mt-0.5 block">From confirmed payments</span>
     </div>
 
@@ -59,7 +59,7 @@
 
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Avg. Transaction Value</span>
-        <span class="text-2xl font-black text-slate-800 leading-tight mt-1 block">${{ avg_txn|floatformat:2 }}</span>
+        <span class="text-2xl font-black text-slate-800 leading-tight mt-1 block">ETB {{ avg_txn|floatformat:2 }}</span>
         <span class="text-[11px] text-slate-400 mt-0.5 block">Per bill</span>
     </div>
 
@@ -93,7 +93,7 @@
                     <td class="px-6 py-4 font-mono font-bold text-slate-400">#{{ forloop.counter }}</td>
                     <td class="px-6 py-4 font-bold text-slate-800 text-sm">{{ meal.meal__name }}</td>
                     <td class="px-6 py-4 font-semibold text-slate-600">{{ meal.total_qty }} portions</td>
-                    <td class="px-6 py-4 text-right font-black text-blue-600 text-sm">${{ meal.total_rev|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-right font-black text-blue-600 text-sm">ETB {{ meal.total_rev|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
                 <tr>

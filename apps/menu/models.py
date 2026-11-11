@@ -36,5 +36,5 @@ class Meal(models.Model):
         verbose_name_plural = 'Meals'
 
     def __str__(self):
-        return f"{self.name} - ${self.price}"
+        return f"{self.name} - ETB {self.price}"
 

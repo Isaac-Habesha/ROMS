@@ -50,7 +50,7 @@
                         {{ item.quantity }}x {{ item.meal.name }}{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
-                    <td class="px-6 py-4 font-extrabold text-slate-900 text-sm">${{ order.total_amount }}</td>
+                    <td class="px-6 py-4 font-extrabold text-slate-900 text-sm">ETB {{ order.total_amount }}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
                             <i class="bi bi-clock text-slate-400"></i>

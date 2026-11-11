@@ -113,7 +113,7 @@
                     </div>
 
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
-                        <span class="text-base font-black text-slate-900">${{ meal.price }}</span>
+                        <span class="text-base font-black text-slate-900">ETB {{ meal.price }}</span>
                         <button type="button"
                             onclick="addToCart('{{ meal.id }}', '{{ meal.name|escapejs }}', {{ meal.price }})"
                             class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all flex items-center gap-1 active:scale-95 shadow-sm">
@@ -222,15 +222,15 @@
                 <div class="mt-4 pt-3 border-t border-slate-100 space-y-1.5 text-xs">
                     <div class="flex justify-between text-slate-500">
                         <span>Items Subtotal</span>
-                        <span id="subtotalDisplay" class="font-bold text-slate-700">$0.00</span>
+                        <span id="subtotalDisplay" class="font-bold text-slate-700">ETB 0.00</span>
                     </div>
                     <div class="flex justify-between text-slate-500">
                         <span>Estimated Tax (0%)</span>
-                        <span class="font-bold text-slate-700">$0.00</span>
+                        <span class="font-bold text-slate-700">ETB 0.00</span>
                     </div>
                     <div class="flex justify-between text-sm font-black text-slate-900 pt-2 border-t border-slate-100">
                         <span>Total Amount</span>
-                        <span id="totalDisplay" class="text-base text-blue-600">$0.00</span>
+                        <span id="totalDisplay" class="text-base text-blue-600">ETB 0.00</span>
                     </div>
                 </div>
 
@@ -330,8 +330,8 @@
         if (items.length === 0) {
             emptyMsg.classList.remove('hidden');
             badge.textContent = '0 items selected';
-            subtotalEl.textContent = '$0.00';
-            totalEl.textContent = '$0.00';
+            subtotalEl.textContent = 'ETB 0.00';
+            totalEl.textContent = 'ETB 0.00';
             submitBtn.disabled = true;
             return;
         }
@@ -351,7 +351,7 @@
                 <div class="flex items-center justify-between text-xs">
                     <div class="min-w-0 flex-1 pr-2">
                         <span class="font-bold text-slate-800 block truncate">${item.name}</span>
-                        <span class="text-slate-400 text-[11px]">$${item.price.toFixed(2)} each</span>
+                        <span class="text-slate-400 text-[11px]">ETB ${item.price.toFixed(2)} each</span>
                     </div>
 
                     <div class="flex items-center space-x-1.5 shrink-0">
@@ -360,7 +360,7 @@
                         <span class="w-6 text-center font-extrabold text-slate-900 text-xs">${item.quantity}</span>
                         <button type="button" onclick="updateQuantity('${item.id}', 1)" 
                                 class="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs">+</button>
-                        <span class="font-black text-slate-900 text-xs pl-2">$${itemTotal.toFixed(2)}</span>
+                        <span class="font-black text-slate-900 text-xs pl-2">ETB ${itemTotal.toFixed(2)}</span>
                         <button type="button" onclick="removeItem('${item.id}')" 
                                 class="text-slate-300 hover:text-rose-500 pl-1">
                             <i class="bi bi-x-lg text-xs"></i>
@@ -383,8 +383,8 @@
         });
 
         badge.textContent = `${totalItems} item${totalItems === 1 ? '' : 's'} selected`;
-        subtotalEl.textContent = `$${totalAmount.toFixed(2)}`;
-        totalEl.textContent = `$${totalAmount.toFixed(2)}`;
+        subtotalEl.textContent = `ETB ${totalAmount.toFixed(2)}`;
+        totalEl.textContent = `ETB ${totalAmount.toFixed(2)}`;
     }
 
     // Guest Count Helpers
