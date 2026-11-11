@@ -36,6 +36,9 @@
         <a href="?status=REJECTED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'REJECTED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
             Rejected
         </a>
+        <a href="?status=SERVED" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 {% if current_status == 'SERVED' %}bg-[#2563eb] text-white shadow-pill{% else %}bg-white text-slate-600 border border-slate-200 shadow-sm hover:bg-slate-50{% endif %}">
+            ✅ Served
+        </a>
     </div>
 
     <a href="{% url 'orders:create_order' %}" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2563eb] hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all shrink-0">
@@ -86,6 +89,10 @@
                         <span class="px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800">Ready to Serve</span>
                         {% elif order.status == 'REJECTED' %}
                         <span class="px-3 py-1 rounded-full font-bold bg-rose-100 text-rose-800">Rejected</span>
+                        {% elif order.status == 'SERVED' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-teal-100 text-teal-800">✅ Served</span>
+                        {% elif order.status == 'CANCELLED' %}
+                        <span class="px-3 py-1 rounded-full font-bold bg-slate-200 text-slate-500">Cancelled</span>
                         {% else %}
                         <span class="px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">{{ order.get_status_display }}</span>
                         {% endif %}

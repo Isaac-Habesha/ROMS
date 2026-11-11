@@ -18,6 +18,7 @@ def waiter_dashboard(request):
         'total_today': today_orders.count(),
         'pending_count': today_orders.filter(status=Order.Status.PENDING_APPROVAL).count(),
         'approved_count': today_orders.filter(status__in=[Order.Status.APPROVED, Order.Status.RECEIVED, Order.Status.PREPARING, Order.Status.READY]).count(),
+        'served_count': today_orders.filter(status=Order.Status.SERVED).count(),
         'rejected_count': today_orders.filter(status=Order.Status.REJECTED).count(),
         'recent_orders': Order.objects.filter(waiter=request.user)[:10],
     }

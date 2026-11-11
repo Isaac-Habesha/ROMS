@@ -18,6 +18,7 @@ def supervisor_dashboard(request):
     kitchen_active = Order.objects.filter(status__in=[Order.Status.RECEIVED, Order.Status.PREPARING])
     ready = Order.objects.filter(status=Order.Status.READY)
     rejected = Order.objects.filter(status=Order.Status.REJECTED)
+    served = Order.objects.filter(status=Order.Status.SERVED)
 
     context = {
         'pending_count': pending.count(),
@@ -25,6 +26,7 @@ def supervisor_dashboard(request):
         'kitchen_active_count': kitchen_active.count(),
         'ready_count': ready.count(),
         'rejected_count': rejected.count(),
+        'served_count': served.count(),
         'incoming_orders': pending[:15],
     }
     return render(request, 'supervisor/dashboard.html', context)

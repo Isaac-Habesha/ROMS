@@ -2,14 +2,16 @@
 {% load humanize %}
 
 {% block title %}Waiter Dashboard - Royal Dine{% endblock %}
-{% block header_title %}Welcome, {{ user.first_name|default:user.username }}! <span class="inline-block animate-bounce">👋</span>{% endblock %}
+{% block header_title %}Welcome, {{ user.first_name|default:user.username }}! <span
+    class="inline-block animate-bounce">👋</span>{% endblock %}
 {% block header_subtitle %}Take new customer orders and manage your service{% endblock %}
 
 {% block content %}
-<!-- 4 KPI Cards (Exact Royal Dine Style) -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<!-- 5 KPI Cards (Exact Royal Dine Style) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
     <!-- Card 1: Today's Orders -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <i class="bi bi-cup-hot-fill text-xl"></i>
         </div>
@@ -20,18 +22,20 @@
     </div>
 
     <!-- Card 2: Approved / In Progress -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
         <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <i class="bi bi-check-circle-fill text-xl"></i>
+            <i class="bi bi-fire text-xl"></i>
         </div>
         <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Approved & Kitchen</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">In Kitchen</span>
             <span class="text-2xl font-black text-slate-800 leading-tight">{{ approved_count }}</span>
         </div>
     </div>
 
     <!-- Card 3: Pending Approval -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
         <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
             <i class="bi bi-clock-fill text-xl"></i>
         </div>
@@ -41,8 +45,21 @@
         </div>
     </div>
 
-    <!-- Card 4: Rejected Orders -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
+    <!-- Card 4: Served & Paid -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+            <i class="bi bi-patch-check-fill text-xl"></i>
+        </div>
+        <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide block">Served & Paid</span>
+            <span class="text-2xl font-black text-slate-800 leading-tight">{{ served_count }}</span>
+        </div>
+    </div>
+
+    <!-- Card 5: Rejected Orders -->
+    <div
+        class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center space-x-4 transition-transform hover:-translate-y-0.5">
         <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
             <i class="bi bi-x-octagon-fill text-xl"></i>
         </div>
@@ -65,14 +82,14 @@
             </h3>
 
             <div class="space-y-3">
-                <a href="{% url 'orders:create_order' %}" 
-                   class="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl font-bold text-white bg-[#2563eb] hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all transform active:scale-[0.99]">
+                <a href="{% url 'orders:create_order' %}"
+                    class="w-full flex items-center justify-center space-x-2 py-3.5 px-4 rounded-xl font-bold text-white bg-[#2563eb] hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all transform active:scale-[0.99]">
                     <i class="bi bi-plus-lg text-lg"></i>
                     <span>Take New Order</span>
                 </a>
 
-                <a href="{% url 'orders:waiter_orders' %}" 
-                   class="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition-colors">
+                <a href="{% url 'orders:waiter_orders' %}"
+                    class="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 transition-colors">
                     <i class="bi bi-receipt"></i>
                     <span>View My Orders History</span>
                 </a>
@@ -80,13 +97,15 @@
         </div>
 
         <!-- Inspirational Waiter Quote Card (Exact Match to Inspiration Bottom Left) -->
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-100 rounded-2xl p-6 relative overflow-hidden">
+        <div
+            class="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-100 rounded-2xl p-6 relative overflow-hidden">
             <div class="text-blue-500 opacity-20 text-6xl font-serif absolute -top-2 -left-2 select-none">&ldquo;</div>
             <div class="relative z-10">
                 <p class="text-sm font-bold text-blue-950 leading-relaxed italic">
                     Great service makes great food even better! Every smile adds flavor to the dining experience.
                 </p>
-                <span class="block mt-3 text-xs font-bold text-blue-600 uppercase tracking-wider">&mdash; Royal Dine Restaurant</span>
+                <span class="block mt-3 text-xs font-bold text-blue-600 uppercase tracking-wider">&mdash; Royal Dine
+                    Restaurant</span>
             </div>
         </div>
     </div>
@@ -100,7 +119,8 @@
                         <h3 class="text-base font-extrabold text-slate-800">Recent Orders</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Your submitted orders today</p>
                     </div>
-                    <a href="{% url 'orders:waiter_orders' %}" class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <a href="{% url 'orders:waiter_orders' %}"
+                        class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1">
                         <span>View All</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -110,15 +130,19 @@
                     {% for order in recent_orders %}
                     <div class="py-3.5 flex items-center justify-between gap-3">
                         <div class="flex items-center space-x-3 min-w-0">
-                            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-xs text-slate-700 shrink-0">
                                 #{{ order.id }}
                             </div>
                             <div class="min-w-0">
                                 <div class="flex items-center space-x-2">
-                                    <span class="font-extrabold text-sm text-slate-800">{{ order.order_number|default:order.order_reference }}</span>
-                                    <span class="text-xs font-semibold text-slate-500">&bull; {{ order.customer_count }} Guest{{ order.customer_count|pluralize }}</span>
+                                    <span class="font-extrabold text-sm text-slate-800">{{
+                                        order.order_number|default:order.order_reference }}</span>
+                                    <span class="text-xs font-semibold text-slate-500">&bull; {{ order.customer_count }}
+                                        Guest{{ order.customer_count|pluralize }}</span>
                                 </div>
-                                <span class="text-xs text-slate-400 block mt-0.5">{{ order.created_at|naturaltime }}</span>
+                                <span class="text-xs text-slate-400 block mt-0.5">{{ order.created_at|naturaltime
+                                    }}</span>
                             </div>
                         </div>
 
@@ -147,13 +171,18 @@
                             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
                                 Rejected
                             </span>
+                            {% elif order.status == 'SERVED' %}
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800">
+                                ✅ Served
+                            </span>
                             {% else %}
                             <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
                                 {{ order.get_status_display }}
                             </span>
                             {% endif %}
 
-                            <a href="{% url 'orders:order_detail' order.id %}" class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors">
+                            <a href="{% url 'orders:order_detail' order.id %}"
+                                class="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center transition-colors">
                                 <i class="bi bi-chevron-right text-xs"></i>
                             </a>
                         </div>
@@ -168,7 +197,8 @@
             </div>
 
             <div class="pt-4 border-t border-slate-100 mt-4 text-center">
-                <span class="text-xs text-slate-400 font-medium">Orders update in real-time as the supervisor reviews them.</span>
+                <span class="text-xs text-slate-400 font-medium">Orders update in real-time as the supervisor reviews
+                    them.</span>
             </div>
         </div>
     </div>

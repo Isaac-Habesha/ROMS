@@ -178,6 +178,8 @@
                         {% elif order.status == 'PENDING_APPROVAL' %}bg-amber-100 text-amber-800
                         {% elif order.status == 'READY' %}bg-purple-100 text-purple-800
                         {% elif order.status == 'RECEIVED' or order.status == 'PREPARING' %}bg-sky-100 text-sky-800
+                        {% elif order.status == 'SERVED' %}bg-teal-100 text-teal-800
+                        {% elif order.status == 'REJECTED' %}bg-rose-100 text-rose-800
                         {% else %}bg-slate-100 text-slate-700{% endif %}">
                         {{ order.get_status_display }}
                     </span>

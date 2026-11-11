@@ -8,7 +8,8 @@
 {% block content %}
 <!-- Back to Dashboard Toolbar -->
 <div class="mb-4 flex items-center justify-between">
-    <a href="{% url 'approvals:supervisor_dashboard' %}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+    <a href="{% url 'approvals:supervisor_dashboard' %}"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
         <i class="bi bi-arrow-left text-sm text-blue-600"></i>
         <span>Back to Dashboard</span>
     </a>
@@ -41,13 +42,15 @@
                 <tr class="hover:bg-slate-50/80 transition-colors">
                     <td class="px-6 py-4">
                         {% if order.order_number %}
-                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-white font-mono font-bold text-[11px]">{{ order.order_number }}</span>
+                        <span class="px-2 py-0.5 rounded-lg bg-slate-900 text-white font-mono font-bold text-[11px]">{{
+                            order.order_number }}</span>
                         {% else %}
                         <span class="text-slate-400 font-medium">—</span>
                         {% endif %}
                     </td>
                     <td class="px-6 py-4 font-bold text-slate-900">{{ order.order_reference }}</td>
-                    <td class="px-6 py-4 text-slate-700 font-semibold">{{ order.waiter.get_full_name|default:order.waiter.username }}</td>
+                    <td class="px-6 py-4 text-slate-700 font-semibold">{{
+                        order.waiter.get_full_name|default:order.waiter.username }}</td>
                     <td class="px-6 py-4 text-slate-600">{{ order.customer_count }}</td>
                     <td class="px-6 py-4 font-black text-slate-900">${{ order.total_amount }}</td>
                     <td class="px-6 py-4">
@@ -56,6 +59,7 @@
                             {% elif order.status == 'RECEIVED' %}bg-sky-100 text-sky-800
                             {% elif order.status == 'PREPARING' %}bg-indigo-100 text-indigo-800
                             {% elif order.status == 'READY' %}bg-emerald-100 text-emerald-800
+                            {% elif order.status == 'SERVED' %}bg-teal-100 text-teal-800
                             {% elif order.status == 'REJECTED' %}bg-rose-100 text-rose-800
                             {% else %}bg-slate-100 text-slate-700{% endif %}">
                             {{ order.get_status_display }}
