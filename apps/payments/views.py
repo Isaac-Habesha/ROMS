@@ -10,14 +10,12 @@ from decimal import Decimal
 
 
 @login_required
-@role_required('ADMIN', 'SUPERVISOR')
 def payment_list(request):
     payments = Payment.objects.select_related('order', 'recorded_by').all()
     return render(request, 'payments/payment_list.html', {'payments': payments})
 
 
 @login_required
-@role_required('ADMIN', 'SUPERVISOR')
 @require_POST
 def record_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -42,12 +40,17 @@ def record_payment(request, order_id):
     log_action(
         user=request.user,
         action='PAYMENT_RECORDED',
-        description=f'Payment of ${amount:.2f} recorded for order {order.order_number or order.order_reference} via {payment.get_payment_method_display()}.',
+        description=f'Payment of ${amount:.2f} recorded for order {order.order_number or order.order_reference} via {payment.get_payment_method_display()} by {request.user.get_full_name() or request.user.username}.',
         entity_type='Payment',
         entity_id=payment.id,
         ip_address=get_client_ip(request)
     )
 
-    messages.success(request, f'Payment of ${amount:.2f} recorded successfully!')
+    messages.success(request, f'Payment of ${amount:.2f} for Order {order.order_number or order.order_reference} confirmed successfully!')
+    
+    # Redirect back to where the user came from or to order detail
+    next_url = request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
     return redirect('orders:order_detail', order_id=order.id)
 

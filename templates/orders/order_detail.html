@@ -7,12 +7,30 @@
 
 {% block content %}
 <!-- Back Navigation Toolbar -->
-<div class="mb-4 flex items-center justify-between">
-    <button type="button" onclick="window.history.back()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
-        <i class="bi bi-arrow-left text-sm text-blue-600"></i>
-        <span>Back</span>
-    </button>
-    <span class="text-xs text-slate-400 font-medium">Order Details &bull; {{ order.order_number|default:order.order_reference }}</span>
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+        <button type="button" onclick="window.history.back()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 font-bold text-xs shadow-sm transition-all active:scale-95">
+            <i class="bi bi-arrow-left text-sm text-blue-600"></i>
+            <span>Back</span>
+        </button>
+        <span class="text-xs text-slate-400 font-medium hidden sm:inline">Order Details &bull; {{ order.order_number|default:order.order_reference }}</span>
+    </div>
+
+    <!-- Quick Action Toolbar Header -->
+    <div class="flex items-center gap-2">
+        {% if not order.payments.exists %}
+        <button type="button" onclick="document.getElementById('paymentModal').classList.remove('hidden')"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm shadow-emerald-600/30 transition-all active:scale-95">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Confirm Payment (${{ order.total_amount }})</span>
+        </button>
+        {% else %}
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <i class="bi bi-check-all text-base text-emerald-600"></i>
+            <span>PAID IN FULL</span>
+        </span>
+        {% endif %}
+    </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -45,13 +63,11 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-b border-slate-100 text-xs">
                 <div>
                     <span class="text-slate-400 font-medium block">Waiter</span>
-                    <strong class="text-slate-800 text-sm font-bold">{{
-                        order.waiter.get_full_name|default:order.waiter.username }}</strong>
+                    <strong class="text-slate-800 text-sm font-bold">{{ order.waiter.get_full_name|default:order.waiter.username }}</strong>
                 </div>
                 <div>
                     <span class="text-slate-400 font-medium block">Guests</span>
-                    <strong class="text-slate-800 text-sm font-bold">{{ order.customer_count }} Person{{
-                        order.customer_count|pluralize }}</strong>
+                    <strong class="text-slate-800 text-sm font-bold">{{ order.customer_count }} Person{{ order.customer_count|pluralize }}</strong>
                 </div>
                 <div>
                     <span class="text-slate-400 font-medium block">Submitted</span>
@@ -72,8 +88,7 @@
 
             {% if order.order_notes %}
             <div class="my-4 p-3.5 rounded-xl bg-blue-50/50 border border-blue-100 text-xs text-blue-900">
-                <strong><i class="bi bi-chat-left-text-fill mr-1.5 text-blue-600"></i>General Notes:</strong> {{
-                order.order_notes }}
+                <strong><i class="bi bi-chat-left-text-fill mr-1.5 text-blue-600"></i>General Notes:</strong> {{ order.order_notes }}
             </div>
             {% endif %}
 
@@ -160,17 +175,16 @@
                         <span class="text-slate-500 uppercase text-[10px]">{{ p.get_payment_method_display }}</span>
                     </div>
                     <span class="text-[10px] text-slate-400 block font-mono">Ref: {{ p.transaction_reference }}</span>
-                    <span class="text-[10px] text-slate-500 block">{{ p.created_at|date:"M d, H:i" }} &bull; {{
-                        p.recorded_by.get_full_name|default:p.recorded_by.username }}</span>
+                    <span class="text-[10px] text-slate-500 block">{{ p.created_at|date:"M d, H:i" }} &bull; {{ p.recorded_by.get_full_name|default:p.recorded_by.username }}</span>
                 </div>
                 {% endfor %}
                 {% else %}
-                <p class="text-xs text-slate-500">No payment collected yet. Outstanding balance is <strong>${{
-                        order.total_amount }}</strong>.</p>
-                {% if user.role == 'ADMIN' or user.role == 'SUPERVISOR' %}
+                <p class="text-xs text-slate-500">No payment collected yet. Outstanding balance is <strong>${{ order.total_amount }}</strong>.</p>
+                {% if not order.payments.exists %}
                 <button type="button" onclick="document.getElementById('paymentModal').classList.remove('hidden')"
-                    class="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-[#10b981] hover:bg-emerald-600 shadow-md shadow-emerald-500/20 transition-all">
-                    Record Payment Now
+                    class="w-full py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Confirm &amp; Record Payment</span>
                 </button>
                 {% endif %}
                 {% endif %}
@@ -192,8 +206,7 @@
                         <span class="font-bold text-slate-800">{{ h.new_status }}</span>
                         <span class="text-[10px] text-slate-400">{{ h.created_at|date:"H:i:s" }}</span>
                     </div>
-                    <span class="text-[11px] text-slate-500 block">By: {{
-                        h.changed_by.get_full_name|default:h.changed_by.username|default:"System" }}</span>
+                    <span class="text-[11px] text-slate-500 block">By: {{ h.changed_by.get_full_name|default:h.changed_by.username|default:"System" }}</span>
                     {% if h.notes %}
                     <span class="text-[10px] text-slate-400 italic block mt-0.5">{{ h.notes }}</span>
                     {% endif %}

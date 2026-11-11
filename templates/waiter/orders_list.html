@@ -56,6 +56,7 @@
                     <th class="px-6 py-3.5">Items</th>
                     <th class="px-6 py-3.5">Total Amount</th>
                     <th class="px-6 py-3.5">Status</th>
+                    <th class="px-6 py-3.5">Payment</th>
                     <th class="px-6 py-3.5">Submitted</th>
                     <th class="px-6 py-3.5 text-right">Action</th>
                 </tr>
@@ -89,8 +90,23 @@
                         <span class="px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-700">{{ order.get_status_display }}</span>
                         {% endif %}
                     </td>
+                    <td class="px-6 py-4">
+                        {% if order.payments.exists %}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Paid</span>
+                        {% else %}
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Unpaid</span>
+                        {% endif %}
+                    </td>
                     <td class="px-6 py-4 text-slate-400">{{ order.created_at|naturaltime }}</td>
                     <td class="px-6 py-4 text-right space-x-2">
+                        {% if not order.payments.exists and order.status != 'REJECTED' and order.status != 'CANCELLED' %}
+                        <button type="button" 
+                            onclick="openQuickPayModal('{{ order.id }}', '{{ order.order_number|default:order.order_reference }}', '{{ order.total_amount }}')"
+                            class="px-3 py-1.5 rounded-xl font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all inline-flex items-center gap-1">
+                            <i class="bi bi-cash"></i>
+                            <span>Pay</span>
+                        </button>
+                        {% endif %}
                         <a href="{% url 'orders:order_detail' order.id %}" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold transition-colors">
                             Details
                         </a>
@@ -124,4 +140,75 @@
         </table>
     </div>
 </div>
+
+<!-- Quick Pay Modal for Waiter -->
+<div id="quickPayModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="bi bi-cash-coin text-emerald-600"></i>
+                <span>Confirm Order Payment</span>
+            </h3>
+            <button type="button" onclick="closeQuickPayModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <form id="quickPayForm" method="post" action="" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <div>
+                <span class="text-xs text-slate-400 font-semibold block">Order Reference:</span>
+                <strong id="modalOrderRef" class="text-sm font-bold text-slate-800"></strong>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Amount to Collect ($):</label>
+                <input type="number" step="0.01" name="amount" id="modalOrderAmount" required
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Payment Method:</label>
+                <select name="payment_method"
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Credit / Debit Card</option>
+                    <option value="MOBILE_MONEY">Mobile Money / QR</option>
+                    <option value="OTHER">Other / Manual</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Notes (Optional):</label>
+                <input type="text" name="notes" placeholder="Receipt or customer note..."
+                    class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2">
+                <button type="button" onclick="closeQuickPayModal()"
+                    class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20">
+                    Confirm Paid
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openQuickPayModal(orderId, orderRef, totalAmount) {
+    document.getElementById('quickPayForm').action = '/payments/record/' + orderId + '/';
+    document.getElementById('modalOrderRef').innerText = orderRef;
+    document.getElementById('modalOrderAmount').value = totalAmount;
+    document.getElementById('quickPayModal').classList.remove('hidden');
+}
+
+function closeQuickPayModal() {
+    document.getElementById('quickPayModal').classList.add('hidden');
+}
+</script>
 {% endblock %}

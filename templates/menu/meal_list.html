@@ -43,11 +43,9 @@
                     {{ forloop.counter }}
                 </span>
                 <h3 class="text-sm font-extrabold text-slate-800">{{ category.name }}</h3>
-                <span class="text-xs text-slate-400">({{ category.meals.count }} dish{{
-                    category.meals.count|pluralize:"es" }})</span>
+                <span class="text-xs text-slate-400">({{ category.meals.count }} dish{{ category.meals.count|pluralize:"es" }})</span>
             </div>
-            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order: {{ category.display_order
-                }}</span>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Order: {{ category.display_order }}</span>
         </div>
 
         <div class="overflow-x-auto">
