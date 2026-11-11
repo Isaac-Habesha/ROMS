@@ -8,6 +8,7 @@ urlpatterns = [
     path('waiter/create/', views.create_order, name='create_order'),
     path('waiter/orders/', views.waiter_orders, name='waiter_orders'),
     path('waiter/orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('api/notifications/', views.live_notifications_api, name='live_notifications_api'),
     path('waiter/orders/<int:order_id>/resubmit/', views.resubmit_order, name='resubmit_order'),
 ]
 

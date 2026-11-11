@@ -63,17 +63,24 @@ def approve_order(request, order_id):
             messages.warning(request, f'Order {order.order_reference} is already {order.get_status_display()}.')
             return redirect('approvals:supervisor_dashboard')
 
-        # Generate unique order number (e.g. #ORD-0001)
-        last_order = Order.objects.exclude(order_number__isnull=True).exclude(order_number='').order_by('-id').first()
-        next_num = 1
-        if last_order and last_order.order_number:
-            try:
-                num_str = last_order.order_number.replace('#ORD-', '').replace('ORD-', '')
-                next_num = int(num_str) + 1
-            except ValueError:
-                next_num = order.id
+        # Generate unique order number (e.g. #ORD-0006) by scanning existing orders safely
+        import re
+        max_num = 0
+        for o in Order.objects.exclude(order_number__isnull=True).exclude(order_number=''):
+            m = re.search(r'\d+', o.order_number)
+            if m:
+                val = int(m.group(0))
+                if val > max_num:
+                    max_num = val
+        next_num = max(max_num + 1, order.id)
+        candidate_num = f"#ORD-{next_num:04d}"
         
-        order.order_number = f"#ORD-{next_num:04d}"
+        # Ensure candidate_num is strictly unique in DB
+        while Order.objects.filter(order_number=candidate_num).exists():
+            next_num += 1
+            candidate_num = f"#ORD-{next_num:04d}"
+        
+        order.order_number = candidate_num
         order.status = Order.Status.APPROVED
         order.approved_at = timezone.now()
         order.save(update_fields=['order_number', 'status', 'approved_at'])
@@ -88,12 +95,20 @@ def approve_order(request, order_id):
             }
         )
 
-        # Create kitchen ticket (from kitchen app)
+        # Create kitchen ticket (from kitchen app) safely ensuring unique ticket_number
         from apps.kitchen.models import KitchenTicket
-        KitchenTicket.objects.get_or_create(
+        tkt_num = f"TKT-{order.order_number.replace('#', '')}"
+        counter = 1
+        base_tkt = tkt_num
+        while KitchenTicket.objects.filter(ticket_number=tkt_num).exclude(order=order).exists():
+            tkt_num = f"{base_tkt}-{counter}"
+            counter += 1
+
+        KitchenTicket.objects.update_or_create(
             order=order,
             defaults={
-                'ticket_number': f"TKT-{order.order_number.replace('#', '')}",
+                'ticket_number': tkt_num,
+                'status': KitchenTicket.Status.RECEIVED,
             }
         )
 

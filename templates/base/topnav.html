@@ -44,13 +44,47 @@
             <span id="liveDateTimeBadge">Loading date...</span>
         </div>
 
-        <!-- Notification Bell with Notification Dot -->
-        <div class="relative">
-            <button type="button"
-                class="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-sm transition-colors">
+        <!-- Notification Bell with Dropdown Menu -->
+        <div class="relative" id="notificationDropdownContainer">
+            <button type="button" id="notificationBellBtn" onclick="toggleNotificationDropdown()"
+                class="w-10 h-10 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-sm transition-colors relative">
                 <i class="bi bi-bell-fill text-sm"></i>
-                <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                <span id="notificationBadge" class="hidden absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-white animate-pulse"></span>
             </button>
+
+            <!-- Dropdown Panel -->
+            <div id="notificationMenu" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                <div class="p-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <i class="bi bi-bell text-blue-600 font-bold"></i>
+                        <span class="text-xs font-extrabold text-slate-800">Notifications</span>
+                    </div>
+                    <span id="notificationHeaderCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">0 New</span>
+                </div>
+
+                <div id="notificationList" class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                    <div class="p-6 text-center text-slate-400 text-xs">
+                        <i class="bi bi-bell-slash text-2xl text-slate-300 block mb-1"></i>
+                        No new notifications.
+                    </div>
+                </div>
+
+                <div class="p-2 border-t border-slate-100 bg-slate-50/50 text-center">
+                    {% if user.role == 'ADMIN' or user.role == 'SUPERVISOR' %}
+                    <a href="{% url 'approvals:pending_orders' %}" class="text-[11px] font-bold text-blue-600 hover:text-blue-700">
+                        View Pending Approvals &rarr;
+                    </a>
+                    {% elif user.role == 'KITCHEN_STAFF' %}
+                    <a href="{% url 'kitchen:kitchen_dashboard' %}" class="text-[11px] font-bold text-blue-600 hover:text-blue-700">
+                        View Kitchen Orders &rarr;
+                    </a>
+                    {% else %}
+                    <a href="{% url 'orders:waiter_orders' %}" class="text-[11px] font-bold text-blue-600 hover:text-blue-700">
+                        View My Orders &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
         <!-- Avatar with Online Status Dot -->
@@ -110,4 +144,98 @@
     }
     updateLiveDateTime();
     setInterval(updateLiveDateTime, 1000);
+
+    // Live Notification Polling & Sound
+    let lastNotifCount = 0;
+    const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+
+    function playBeep() {
+        if (!audioCtx) return;
+        try {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } catch (e) {
+            // Audio permission not yet interacted
+        }
+    }
+
+    function toggleNotificationDropdown() {
+        const menu = document.getElementById('notificationMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Close dropdown on click outside
+    document.addEventListener('click', function(e) {
+        const container = document.getElementById('notificationDropdownContainer');
+        const menu = document.getElementById('notificationMenu');
+        if (container && !container.contains(e.target) && menu && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    async function pollNotifications() {
+        try {
+            const resp = await fetch('{% url "orders:live_notifications_api" %}');
+            if (!resp.ok) return;
+            const data = await resp.json();
+
+            const badge = document.getElementById('notificationBadge');
+            const countHeader = document.getElementById('notificationHeaderCount');
+            const list = document.getElementById('notificationList');
+
+            if (data.unread_count > 0) {
+                badge.classList.remove('hidden');
+                countHeader.textContent = `${data.unread_count} New`;
+                
+                // Play notification sound when count increases
+                if (data.unread_count > lastNotifCount && lastNotifCount !== 0) {
+                    playBeep();
+                }
+                lastNotifCount = data.unread_count;
+
+                // Populate notifications
+                list.innerHTML = data.notifications.map(n => `
+                    <a href="${n.url}" class="p-3 hover:bg-slate-50 transition-colors flex items-start space-x-3 block">
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold mt-0.5">
+                            <i class="bi ${n.type === 'kitchen' ? 'bi-fire text-amber-500' : 'bi-receipt-cutoff'}"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 truncate">${n.title}</span>
+                                <span class="text-[10px] text-slate-400 font-mono">${n.time}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">${n.body}</p>
+                        </div>
+                    </a>
+                `).join('');
+            } else {
+                badge.classList.add('hidden');
+                countHeader.textContent = `0 New`;
+                lastNotifCount = 0;
+                list.innerHTML = `
+                    <div class="p-6 text-center text-slate-400 text-xs">
+                        <i class="bi bi-bell-slash text-2xl text-slate-300 block mb-1"></i>
+                        No new notifications.
+                    </div>
+                `;
+            }
+        } catch (err) {
+            // Silently ignore network interruptions
+        }
+    }
+
+    // Initial check + poll every 8 seconds
+    pollNotifications();
+    setInterval(pollNotifications, 8000);
 </script>

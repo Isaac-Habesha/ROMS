@@ -121,6 +121,67 @@ def order_detail(request, order_id):
 
 
 @login_required
+def live_notifications_api(request):
+    """
+    Lightweight polling API that returns recent pending orders, approvals, or kitchen tickets
+    based on the logged-in user's role.
+    """
+    from django.http import JsonResponse
+    user = request.user
+    notifications = []
+    unread_count = 0
+
+    if user.role in ['ADMIN', 'SUPERVISOR']:
+        # Fetch pending orders waiting for approval
+        pending_qs = Order.objects.filter(status=Order.Status.PENDING_APPROVAL).order_by('-created_at')[:8]
+        unread_count = pending_qs.count()
+        for ord_obj in pending_qs:
+            notifications.append({
+                'id': ord_obj.id,
+                'title': f'New Order: {ord_obj.order_reference}',
+                'body': f'Waiter {ord_obj.waiter.get_full_name() or ord_obj.waiter.username} submitted an order for {ord_obj.customer_count} guests (${ord_obj.total_amount}).',
+                'time': ord_obj.created_at.strftime('%H:%M'),
+                'url': f'/approvals/review/{ord_obj.id}/',
+                'type': 'order'
+            })
+    elif user.role == 'KITCHEN_STAFF':
+        # Fetch orders approved for kitchen
+        kitchen_qs = Order.objects.filter(status=Order.Status.APPROVED).order_by('-approved_at')[:8]
+        unread_count = kitchen_qs.count()
+        for ord_obj in kitchen_qs:
+            notifications.append({
+                'id': ord_obj.id,
+                'title': f'Kitchen Ticket Ready: {ord_obj.order_number or ord_obj.order_reference}',
+                'body': f'{ord_obj.items.count()} items to cook for {ord_obj.customer_count} guests.',
+                'time': ord_obj.approved_at.strftime('%H:%M') if ord_obj.approved_at else '',
+                'url': '/kitchen/dashboard/',
+                'type': 'kitchen'
+            })
+    elif user.role == 'WAITER':
+        # Fetch orders recently ready for serving or rejected
+        waiter_updates = Order.objects.filter(
+            waiter=user,
+            status__in=[Order.Status.READY, Order.Status.REJECTED]
+        ).order_by('-updated_at')[:8]
+        unread_count = waiter_updates.count()
+        for ord_obj in waiter_updates:
+            status_text = 'READY TO SERVE' if ord_obj.status == Order.Status.READY else 'REJECTED'
+            notifications.append({
+                'id': ord_obj.id,
+                'title': f'Order {ord_obj.order_number or ord_obj.order_reference}: {status_text}',
+                'body': ord_obj.rejection_reason if ord_obj.status == Order.Status.REJECTED else 'Dishes are ready for table serving!',
+                'time': ord_obj.updated_at.strftime('%H:%M'),
+                'url': f'/orders/waiter/orders/{ord_obj.id}/',
+                'type': 'status'
+            })
+
+    return JsonResponse({
+        'unread_count': unread_count,
+        'notifications': notifications
+    })
+
+
+@login_required
 @waiter_required
 def resubmit_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, waiter=request.user, status=Order.Status.REJECTED)
