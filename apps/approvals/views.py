@@ -108,7 +108,6 @@ def approve_order(request, order_id):
             order=order,
             defaults={
                 'ticket_number': tkt_num,
-                'status': KitchenTicket.Status.RECEIVED,
             }
         )
 

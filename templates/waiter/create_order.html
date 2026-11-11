@@ -90,13 +90,13 @@
                                 class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
                                 {% if "burger" in meal.name|lower %}🍔
                                 {% elif "pizza" in meal.name|lower %}🍕
+                                {% elif "salad" in meal.name|lower %}🥗
+                                {% elif "soup" in meal.name|lower %}🍲
+                                {% elif "salmon" in meal.name|lower or "fish" in meal.name|lower %}🐟
                                 {% elif "steak" in meal.name|lower or "beef" in meal.name|lower or "meat" in
                                 meal.name|lower %}🥩
                                 {% elif "chicken" in meal.name|lower %}🍗
                                 {% elif "pasta" in meal.name|lower or "spaghetti" in meal.name|lower %}🍝
-                                {% elif "salad" in meal.name|lower %}🥗
-                                {% elif "soup" in meal.name|lower %}🍲
-                                {% elif "salmon" in meal.name|lower or "fish" in meal.name|lower %}🐟
                                 {% elif "coffee" in meal.name|lower or "tea" in meal.name|lower or "juice" in
                                 meal.name|lower or "smoothie" in meal.name|lower or "drink" in meal.name|lower %}🍹
                                 {% elif "cake" in meal.name|lower or "dessert" in meal.name|lower or "ice" in
